@@ -3,6 +3,11 @@ import os
 
 class DBHandler:
     def __init__(self, db_path="database/ransom_detect.db"):
+        # Chuyển đường dẫn tương đối sang đường dẫn tuyệt đối bên trong Project
+        if not os.path.isabs(db_path):
+            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+            db_path = os.path.normpath(os.path.join(project_root, db_path))
+
         # Đảm bảo thư mục database tồn tại
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         self.conn = sqlite3.connect(db_path, check_same_thread=False)

@@ -1,15 +1,28 @@
-import tkinter as tk
-from tkinter import ttk
+import os
+import sys
+try:
+    import tkinter as tk
+    from tkinter import ttk
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+except ImportError as e:
+    tk = None
+    ttk = None
+    FigureCanvasTkAgg = None
+    TKINTER_IMPORT_ERROR = e
 import sqlite3
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import datetime
 
 class DashboardApp:
-    def __init__(self, root, db_path="database/ransom_detect.db"):
+    def __init__(self, root, db_path=None):
+        if tk is None or FigureCanvasTkAgg is None:
+            raise ImportError("tkinter is required to run the dashboard. Install python3-tk or tkinter for your Python environment.")
         self.root = root
         self.root.title("Ransomware Detection Dashboard")
         self.root.geometry("900x600")
+        if db_path is None:
+            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+            db_path = os.path.join(project_root, 'database', 'ransom_detect.db')
         self.db_path = db_path
         
         self.setup_ui()
@@ -106,6 +119,9 @@ class DashboardApp:
         self.root.after(2000, self.update_dashboard)
 
 if __name__ == "__main__":
+    if tk is None:
+        print("tkinter is not available. Install python3-tk or the appropriate tkinter package for your Python installation.")
+        sys.exit(1)
     root = tk.Tk()
     app = DashboardApp(root)
     root.mainloop()

@@ -1,5 +1,11 @@
 import os
+import sys
 from cryptography.fernet import Fernet
+
+# Cho phép import module khi chạy script trực tiếp từ thư mục gốc
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 # CRITICAL: CHỈ HOẠT ĐỘNG TRONG THƯ MỤC NÀY
 SANDBOX_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'sandbox'))

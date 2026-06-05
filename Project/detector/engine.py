@@ -1,3 +1,4 @@
+import os
 import time
 from detector.entropy import calculate_entropy
 from database.db_handler import DBHandler
