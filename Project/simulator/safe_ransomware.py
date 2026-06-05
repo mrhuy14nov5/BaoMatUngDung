@@ -1,5 +1,6 @@
 import os
 import sys
+import time  # Thêm thư viện để làm chậm tốc độ mã hóa
 from cryptography.fernet import Fernet
 
 # Cho phép import module khi chạy script trực tiếp từ thư mục gốc
@@ -7,7 +8,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# CRITICAL: CHỈ HOẠT ĐỘNG TRONG THƯ MỤC NÀY
+# Đường dẫn sandbox an toàn
 SANDBOX_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'sandbox'))
 
 class SafeSimulator:
@@ -20,31 +21,37 @@ class SafeSimulator:
 
     def simulate_encryption(self):
         print(f"[SIMULATOR] Bắt đầu mã hóa giả lập trong: {SANDBOX_DIR}")
-        for root, _, files in os.walk(SANDBOX_DIR):
-            for file in files:
-                if file.endswith('.txt'): # Chỉ nhắm vào file txt mẫu
-                    filepath = os.path.join(root, file)
-                    if not self.is_safe_path(filepath):
-                        continue
-                    
-                    # Đọc và mã hóa
-                    with open(filepath, 'rb') as f:
-                        data = f.read()
-                    encrypted_data = self.cipher.encrypt(data)
-                    
-                    # Ghi đè và đổi tên
-                    with open(filepath, 'wb') as f:
-                        f.write(encrypted_data)
-                    os.rename(filepath, filepath + ".locked")
-                    print(f"  -> Encrypted: {filepath}.locked")
+        
+        # Tạo 50 file mẫu để có đủ dữ liệu cho Dashboard vẽ biểu đồ
+        for i in range(50):
+            filepath = os.path.join(SANDBOX_DIR, f"test_data_{i}.txt")
+            
+            # 1. Tạo file nội dung mẫu
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write("Đây là dữ liệu cần được bảo vệ và mô phỏng ransomware " * 100)
+            
+            # 2. Đọc và mã hóa nội dung
+            with open(filepath, 'rb') as f:
+                data = f.read()
+            encrypted_data = self.cipher.encrypt(data)
+            
+            # 3. Ghi đè và đổi tên file
+            with open(filepath, 'wb') as f:
+                f.write(encrypted_data)
+            
+            locked_path = filepath + ".locked"
+            os.rename(filepath, locked_path)
+            
+            print(f"  -> Encrypted: test_data_{i}.txt.locked")
+            
+            # Thêm độ trễ 0.1 giây để hệ thống giám sát kịp ghi nhận từng sự kiện
+            # Điều này giúp Dashboard vẽ được đường biểu đồ thay vì chỉ 1 điểm
+            time.sleep(0.1) 
 
 if __name__ == "__main__":
     if not os.path.exists(SANDBOX_DIR):
         os.makedirs(SANDBOX_DIR)
-        # Tạo file mẫu
-        for i in range(5):
-            with open(os.path.join(SANDBOX_DIR, f"test_data_{i}.txt"), 'w') as f:
-                f.write("Đây là dữ liệu quan trọng " * 100)
     
     sim = SafeSimulator()
     sim.simulate_encryption()
+    print("[SIMULATOR] Hoàn tất quá trình mô phỏng mã hóa.")
