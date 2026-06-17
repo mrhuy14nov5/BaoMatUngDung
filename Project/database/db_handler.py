@@ -10,7 +10,9 @@ class DBHandler:
 
         # Đảm bảo thư mục database tồn tại
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
+        
+        # FIX 2: Thêm timeout=10 để tránh lỗi Database is locked khi có nhiều luồng cùng đọc/ghi
+        self.conn = sqlite3.connect(db_path, check_same_thread=False, timeout=10)
         self.create_tables()
 
     def create_tables(self):

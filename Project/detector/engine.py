@@ -9,14 +9,28 @@ class DetectionEngine:
         self.recent_events = [] # [(timestamp, event_type, path)]
         self.threat_score = 0
         self.ENTROPY_THRESHOLD = 7.5
+        
+        # FIX 1: Thêm dictionary để lọc trùng sự kiện (Debounce)
+        self.last_analyzed = {}
 
     def analyze_event(self, event_type, path):
         current_time = time.time()
+        
+        # Lọc trùng: Nếu file này vừa được phân tích cách đây chưa tới 0.5 giây -> Bỏ qua
+        if path in self.last_analyzed and (current_time - self.last_analyzed[path]) < 0.5:
+            return
+            
+        # Cập nhật thời gian phân tích cuối cùng cho file này
+        self.last_analyzed[path] = current_time
+        
         self.recent_events.append((current_time, event_type, path))
         self.db.log_event(event_type, path)
         
-        # Xóa các sự kiện quá 10 giây
+        # Xóa các sự kiện quá 10 giây để giải phóng RAM
         self.recent_events = [e for e in self.recent_events if current_time - e[0] < 10]
+        
+        # Dọn dẹp cache lọc trùng (Xóa các file đã lưu quá 5 giây)
+        self.last_analyzed = {k: v for k, v in self.last_analyzed.items() if current_time - v < 5}
         
         self.evaluate_risk(path)
 

@@ -1,9 +1,13 @@
 import math
 import os
+import time
 
 def calculate_entropy(file_path, sample_size=10240):
     """Tính toán Shannon Entropy của file (lấy mẫu 10KB để tối ưu tốc độ)"""
     try:
+        # FIX 3: Chờ 0.05s để đảm bảo tiến trình ghi/mã hóa đã nhả file (Release lock)
+        time.sleep(0.05)
+        
         if not os.path.exists(file_path):
             return 0.0
             
@@ -28,4 +32,5 @@ def calculate_entropy(file_path, sample_size=10240):
             
         return entropy
     except Exception as e:
+        # Bắt mọi lỗi (ví dụ: file bị xóa đột ngột) để không làm crash hệ thống
         return 0.0
