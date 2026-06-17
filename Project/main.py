@@ -27,7 +27,7 @@ def setup_environment():
 
 def main():
     print("=" * 50)
-    print("HỆ THỐNG PHÁT HIỆN RANSOMWARE (MỤC ĐÍCH HỌC THUẬT)")
+    print("HỆ THỐNG PHÁT HIỆN RANSOMWARE ")
     print("=" * 50)
 
     setup_environment()
